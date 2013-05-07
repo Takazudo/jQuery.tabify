@@ -1,0 +1,207 @@
+<!doctype html>
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8">
+<title></title>
+<meta name="viewport" content="width=device-width">
+<link rel="stylesheet" href="styles.css">
+<script src="../../libs/jquery/1.9.1/jquery.js"></script>
+<script src="../../libs/jquery.transit.js"></script>
+<script src="../../jquery.tabify.js"></script>
+<script>
+$('html').removeClass('no-js').addClass('js'); // or load Modernizr
+var console = window.console || {};
+console.log = console.log || $.noop;
+</script>
+</head>
+<body>
+
+	<h1>jQuery.tabify demos - methods</h1>
+
+	<p>methods demo.</p>
+
+	<h2>id</h2>
+
+	<div class="testbuttons">
+		<button class="tabset1-testbutton" data-id="tabA">switchById('tabA')</button>
+		<button class="tabset1-testbutton" data-id="tabB">switchById('tabB')</button>
+		<button class="tabset1-testbutton" data-id="tabC">switchById('tabC')</button>
+	</div>
+
+	<div class="tabset" id="tabset1">
+		<div class="tabs">
+			<a href="#tabA" class="tab tab-active">A</a>
+			<a href="#tabB" class="tab">B</a>
+			<a href="#tabC" class="tab">C</a>
+		</div>
+		<div class="tabcontentwrapper">
+			<div id="tabA" class="tabcontentdiv tabcontentdiv-active">
+				A<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div id="tabB" class="tabcontentdiv">
+				B<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div id="tabC" class="tabcontentdiv">
+				C<br>
+				The quick brown fox jumps over the lazy dog.
+			</div>
+		</div>
+	</div>
+
+	<script>
+	$(function() {
+
+		var $tabset = $('#tabset1');
+
+		$tabset.tabify({
+			selector_tab: '.tab',
+			selector_content: '.tabcontentdiv',
+			tab_activeClass: 'tab-active',
+			content_activeClass: 'tabcontentdiv-active'
+		});
+
+		var instance = $tabset.data('tabify');
+
+		$('.tabset1-testbutton').each(function() {
+			var $button = $(this);
+			var id = $button.attr('data-id');
+			$button.click(function() {
+				instance.switchById(id);
+			});
+		});
+		
+	});
+	</script>
+
+	<h2>data / useFade</h2>
+
+	<div class="testbuttons">
+		<button class="tabset2-testbutton" data-id="tabA">switchByTabId('tabA')</button>
+		<button class="tabset2-testbutton" data-id="tabB">switchByTabId('tabB')</button>
+		<button class="tabset2-testbutton" data-id="tabC">switchByTabId('tabC')</button>
+	</div>
+
+	<div class="tabset" id="tabset2">
+		<div class="tabs">
+			<a href="#" data-tabify-target="tabA" class="tab tab-active">A</a>
+			<a href="#" data-tabify-target="tabB" class="tab">B</a>
+			<a href="#" data-tabify-target="tabC" class="tab">C</a>
+		</div>
+		<div class="tabcontentwrapper">
+			<div data-tabify-id="tabA" class="tabcontentdiv tabcontentdiv-active">
+				A<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div data-tabify-id="tabB" class="tabcontentdiv">
+				B<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div data-tabify-id="tabC" class="tabcontentdiv">
+				C<br>
+				The quick brown fox jumps over the lazy dog.
+			</div>
+		</div>
+	</div>
+
+	<script>
+	$(function() {
+
+		var $tabset = $('#tabset2');
+
+		$tabset.tabify({
+			selector_tab: '.tab',
+			selector_contentwrapper: '.tabcontentwrapper',
+			selector_content: '.tabcontentdiv',
+			tab_activeClass: 'tab-active',
+			content_activeClass: 'tabcontentdiv-active',
+			useFade: true
+		});
+
+		var instance = $tabset.data('tabify');
+
+		$('.tabset2-testbutton').each(function() {
+			var $button = $(this);
+			var id = $button.attr('data-id');
+			$button.click(function() {
+				instance.switchByTabId(id);
+			});
+		});
+		
+	});
+	</script>
+
+	<h2>data / useFade / useTransition</h2>
+
+	<div class="testbuttons">
+		<button class="tabset3-testbutton" data-id="tabA">switchByTabId('tabA')</button>
+		<button class="tabset3-testbutton" data-id="tabB">switchByTabId('tabB')</button>
+		<button class="tabset3-testbutton" data-id="tabC">switchByTabId('tabC')</button>
+	</div>
+
+	<div class="tabset" id="tabset3">
+		<div class="tabs">
+			<a href="#" data-tabify-target="tabA" class="tab">A</a>
+			<a href="#" data-tabify-target="tabB" class="tab tab-active">B</a>
+			<a href="#" data-tabify-target="tabC" class="tab">C</a>
+		</div>
+		<div class="tabcontentwrapper">
+			<div data-tabify-id="tabA" class="tabcontentdiv">
+				A<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div data-tabify-id="tabB" class="tabcontentdiv tabcontentdiv-active">
+				B<br>
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+			</div>
+			<div data-tabify-id="tabC" class="tabcontentdiv">
+				C<br>
+				The quick brown fox jumps over the lazy dog.
+			</div>
+		</div>
+	</div>
+
+	<script>
+	$(function() {
+
+		var $tabset = $('#tabset3');
+
+		$tabset.tabify({
+			selector_tab: '.tab',
+			selector_contentwrapper: '.tabcontentwrapper',
+			selector_content: '.tabcontentdiv',
+			tab_activeClass: 'tab-active',
+			content_activeClass: 'tabcontentdiv-active',
+			useFade: true,
+			useTransition: true
+		});
+
+		var instance = $tabset.data('tabify');
+
+		$('.tabset3-testbutton').each(function() {
+			var $button = $(this);
+			var id = $button.attr('data-id');
+			$button.click(function() {
+				instance.switchByTabId(id);
+			});
+		});
+		
+	});
+	</script>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+</body>
+</html>

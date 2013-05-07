@@ -1,0 +1,57 @@
+* {
+  margin:0;
+  padding:0;
+}
+body {
+	padding:10px;
+}
+h1 {
+	font-size:15px;
+	padding:5px 0 10px;
+}
+h2 {
+	font-size:13px;
+	padding:0 0 5px;
+}
+p {
+	font-size:11px;
+	padding:0 0 10px;
+}
+
+/* ============================ */
+
+.tabset {
+	width:300px;
+	padding:0 0 20px;
+}
+	.tabs {
+		height:39px;
+	}
+	.no-js .tabs {
+		display:none;
+	}
+		.tab {
+			float:left;
+			line-height:30px;
+			border:3px solid black;
+			padding:0 10px;
+			margin:0 3px 0 0;
+		}
+		.tab-active {
+			border-color:red;
+			cursor:default;
+		}
+	.tabcontentwrapper {
+	}
+		.tabcontentdiv {
+			border:3px solid black;
+			display:none;
+			padding:10px;
+			text-align:center;
+		}
+		.tabcontentdiv-active {
+			display:block;
+		}
+		.no-js .tabcontentdiv {
+			display:block;
+		}
