@@ -13,20 +13,22 @@ $('html').removeClass('no-js').addClass('js'); // or load Modernizr
 
 $(function() {
 
-	var console = window.console || {};
-	console.log = console.log || $.noop;
+	var $window = $(window);
 
-	var $tabsets = $('.tabset');
-
-	$tabsets.tabify({
-		selector_tab: '.tab',
-		selector_content: '.tabcontentdiv',
-		tab_activeClass: 'tab-active',
-		content_activeClass: 'tabcontentdiv-active'
-	});
-	
-	$tabsets.bind('tabify.switch', function(e, data) {
-		console.log('switch fired.', data);
+	$('.tabset').each(function() {
+		var $tabset = $(this);
+		$tabset.tabify({
+			selector_tab: '.tab',
+			selector_contentwrapper: '.tabcontentwrapper',
+			selector_content: '.tabcontentdiv',
+			tab_activeClass: 'tab-active',
+			content_activeClass: 'tabcontentdiv-active',
+			useFade: true
+		});
+		var instance = $tabset.data('tabify');
+		$window.bind('resize', function() {
+			instance.adjustWrapperHeight();
+		});
 	});
 
 });
@@ -34,9 +36,9 @@ $(function() {
 </head>
 <body>
 
-	<h1>jQuery.tabify demos - basic</h1>
+	<h1>jQuery.tabify demos - adjustWrapperHeight</h1>
 
-	<p>no animation demo.</p>
+	<p>fade effect demo.</p>
 
 	<h2>id</h2>
 
@@ -50,13 +52,19 @@ $(function() {
 			<div id="tabA" class="tabcontentdiv tabcontentdiv-active">
 				A<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
 			</div>
 			<div id="tabB" class="tabcontentdiv">
 				B<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
 			</div>
 			<div id="tabC" class="tabcontentdiv">
 				C<br>
+				The quick brown fox jumps over the lazy dog.
+				The quick brown fox jumps over the lazy dog.
 				The quick brown fox jumps over the lazy dog.
 			</div>
 		</div>
@@ -74,65 +82,24 @@ $(function() {
 			<div data-tabify-id="tabA" class="tabcontentdiv tabcontentdiv-active">
 				A<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
-			</div>
-			<div data-tabify-id="tabB" class="tabcontentdiv">
-				B<br>
-				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
-			</div>
-			<div data-tabify-id="tabC" class="tabcontentdiv">
-				C<br>
-				The quick brown fox jumps over the lazy dog.
-			</div>
-		</div>
-	</div>
-
-	<h2>change initially active tab</h2>
-
-	<div class="tabset">
-		<div class="tabs">
-			<a href="#" data-tabify-target="tabA" class="tab">A</a>
-			<a href="#" data-tabify-target="tabB" class="tab tab-active">B</a>
-			<a href="#" data-tabify-target="tabC" class="tab">C</a>
-		</div>
-		<div class="tabcontentwrapper">
-			<div data-tabify-id="tabA" class="tabcontentdiv">
-				A<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
-			</div>
-			<div data-tabify-id="tabB" class="tabcontentdiv tabcontentdiv-active">
-				B<br>
-				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
-			</div>
-			<div data-tabify-id="tabC" class="tabcontentdiv">
-				C<br>
-				The quick brown fox jumps over the lazy dog.
-			</div>
-		</div>
-	</div>
-
-	<h2>no initial active tab</h2>
-
-	<div class="tabset">
-		<div class="tabs">
-			<a href="#" data-tabify-target="tabA" class="tab">A</a>
-			<a href="#" data-tabify-target="tabB" class="tab">B</a>
-			<a href="#" data-tabify-target="tabC" class="tab">C</a>
-		</div>
-		<div class="tabcontentwrapper">
-			<div data-tabify-id="tabA" class="tabcontentdiv">
-				A<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
 			</div>
 			<div data-tabify-id="tabB" class="tabcontentdiv">
 				B<br>
 				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
+				The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. The quick brown fox jumps over the lazy dog. 
 			</div>
 			<div data-tabify-id="tabC" class="tabcontentdiv">
 				C<br>
 				The quick brown fox jumps over the lazy dog.
+				The quick brown fox jumps over the lazy dog.
+				The quick brown fox jumps over the lazy dog.
 			</div>
 		</div>
 	</div>
+
 
 </body>
 </html>

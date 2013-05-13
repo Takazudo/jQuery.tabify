@@ -8,6 +8,10 @@ tab. with fade. and with transition.
 * [useFade](http://takazudo.github.io/jQuery.tabify/demos/2/)
 * [useFade/useTransition](http://takazudo.github.io/jQuery.tabify/demos/3/)
 * [methods](http://takazudo.github.io/jQuery.tabify/demos/4/)
+* [option - allow\_noactive](http://takazudo.github.io/jQuery.tabify/demos/5/)
+* [adjustWrapperHeight demo](http://takazudo.github.io/jQuery.tabify/demos/6/)
+
+
 
 ## Usage
 

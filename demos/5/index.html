@@ -22,7 +22,9 @@ $(function() {
 		selector_tab: '.tab',
 		selector_content: '.tabcontentdiv',
 		tab_activeClass: 'tab-active',
-		content_activeClass: 'tabcontentdiv-active'
+		content_activeClass: 'tabcontentdiv-active',
+		useFade: true,
+		allow_noactive: true
 	});
 	
 	$tabsets.bind('tabify.switch', function(e, data) {
@@ -34,7 +36,7 @@ $(function() {
 </head>
 <body>
 
-	<h1>jQuery.tabify demos - basic</h1>
+	<h1>jQuery.tabify demos - allow_noactive</h1>
 
 	<p>no animation demo.</p>
 

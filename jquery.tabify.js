@@ -16,15 +16,13 @@
       }
       return false;
     })();
-    ns.taller = function($el1, $el2) {
-      var height1, height2;
-      height1 = $el1.outerHeight();
-      height2 = $el2.outerHeight();
-      if (height1 > height2) {
-        return $el1;
-      } else {
-        return $el2;
-      }
+    ns.normalizeEventData = function(obj) {
+      $.each(obj, function(key, val) {
+        if (((val != null ? val.length : void 0) != null) && val.length === 0) {
+          return obj[key] = null;
+        }
+      });
+      return obj;
     };
     ns.Tab = (function() {
 
@@ -39,7 +37,8 @@
         changeHash: false,
         useFade: false,
         useTransition: false,
-        fadeDuration: 400
+        fadeDuration: 400,
+        allow_noactive: false
       };
 
       function Tab($el, options) {
@@ -64,42 +63,75 @@
       };
 
       Tab.prototype.switchFromOpener = function($opener) {
-        var $lastContentEl, $nextContentEl, $taller, eventData, _ref,
+        var $lastContentEl, $nextContentEl, disableFadeOutDefer, eventData, justHide, _ref,
           _this = this;
         $lastContentEl = this.$lastContentEl || (function() {
           return _this.$lastContentEl = _this.$el.find("." + _this.options.content_activeClass);
         })();
         $nextContentEl = this.getRelatedContentEl($opener);
+        justHide = false;
         if ($lastContentEl[0] === $nextContentEl[0]) {
-          return this;
+          if (this.options.allow_noactive) {
+            justHide = true;
+          } else {
+            return this;
+          }
         }
+        disableFadeOutDefer = justHide ? $.Deferred() : null;
         if ((_ref = this._lastFadeDefer) != null) {
           _ref.reject();
         }
-        this.disableContentEl($lastContentEl);
+        if (justHide) {
+          this.disableContentEl($lastContentEl, true, function() {
+            return disableFadeOutDefer.resolve();
+          });
+        } else {
+          this.disableContentEl($lastContentEl, false, null);
+        }
         if (this.options.useFade) {
           this.makeContentElsToAbsolute();
-          $taller = ns.taller($lastContentEl, $nextContentEl);
-          this.fixWrapperTo($taller);
-        }
-        eventData = {
-          lastTabEl: this.getLastTab(),
-          clickedTabEl: $opener,
-          lastContentEl: $lastContentEl,
-          contentEl: $nextContentEl
-        };
-        this.$el.trigger('tabify.switch', eventData);
-        this.$el.trigger('tabify.beforeswitchanimation', eventData);
-        this.$lastContentEl = $nextContentEl;
-        this._lastFadeDefer = this.activateContentEl($nextContentEl);
-        this._lastFadeDefer.done(function() {
-          if (_this.options.useFade && ($taller[0] !== $nextContentEl[0])) {
-            _this.fixWrapperTo($nextContentEl);
+          if (justHide) {
+            this.fixWrapperTo($lastContentEl);
+            disableFadeOutDefer.done(function() {
+              return _this.hideWrapper();
+            });
+          } else {
+            this.showWrapper();
+            this.fixWrapperTo($nextContentEl);
           }
-          return _this.$el.trigger('tabify.afterswitchanimation', eventData);
-        });
+        }
+        eventData = {};
+        if (justHide) {
+          eventData.lastTabEl = $opener;
+          eventData.tabEl = null;
+          eventData.lastContentEl = $lastContentEl;
+          eventData.contentEl = null;
+        } else {
+          eventData.lastTabEl = this.getLastTab();
+          eventData.tabEl = $opener;
+          eventData.lastContentEl = $lastContentEl;
+          eventData.contentEl = $nextContentEl;
+        }
+        eventData = ns.normalizeEventData(eventData);
+        this.$el.trigger('tabify.switch', eventData);
+        if (!justHide) {
+          this.$el.trigger('tabify.beforeswitchanimation', eventData);
+        }
+        if (justHide) {
+          this.$lastContentEl = null;
+        } else {
+          this.$lastContentEl = $nextContentEl;
+        }
+        if (!justHide) {
+          this._lastFadeDefer = this.activateContentEl($nextContentEl);
+          this._lastFadeDefer.done(function() {
+            return _this.$el.trigger('tabify.afterswitchanimation', eventData);
+          });
+        }
         this.disableActiveTab();
-        this.activateTab($opener);
+        if (!justHide) {
+          this.activateTab($opener);
+        }
         return this;
       };
 
@@ -113,6 +145,24 @@
 
       Tab.prototype.fixWrapperTo = function($contentEl) {
         this.getWrapperEl().height($contentEl.outerHeight());
+        return this;
+      };
+
+      Tab.prototype.hideWrapper = function() {
+        this.getWrapperEl().hide();
+        return this;
+      };
+
+      Tab.prototype.showWrapper = function() {
+        this.getWrapperEl().show();
+        return this;
+      };
+
+      Tab.prototype.adjustWrapperHeight = function() {
+        if (!this.$lastContentEl) {
+          return this;
+        }
+        this.fixWrapperTo(this.$lastContentEl);
         return this;
       };
 
@@ -153,21 +203,33 @@
         return defer;
       };
 
-      Tab.prototype.disableContentEl = function($contentEl) {
-        var handleCls,
+      Tab.prototype.disableContentEl = function($contentEl, animate, callback) {
+        var d, done,
           _this = this;
-        handleCls = function() {
-          return $contentEl.removeClass(_this.options.content_activeClass);
+        done = function() {
+          $contentEl.removeClass(_this.options.content_activeClass);
+          return typeof callback === "function" ? callback() : void 0;
         };
         if (this.options.useFade) {
-          if (this._transitionEnabled) {
-            $contentEl.stop().css('opacity', 0).hide();
+          if (animate) {
+            d = this.options.fadeDuration;
+            if (this._transitionEnabled) {
+              $contentEl.stop().transition({
+                opacity: 0
+              }, d, done);
+            } else {
+              $contentEl.fadeTo(d, 0, done);
+            }
           } else {
-            $contentEl.stop().fadeTo(0, 0).hide();
+            if (this._transitionEnabled) {
+              $contentEl.stop().css('opacity', 0).hide();
+            } else {
+              $contentEl.stop().fadeTo(0, 0).hide();
+            }
+            done();
           }
-          handleCls();
         } else {
-          handleCls();
+          done();
         }
         return this;
       };

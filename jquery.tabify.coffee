@@ -11,13 +11,12 @@ do ($ = jQuery, window = window, document = document) ->
   # ============================================================
   # utils
 
-  ns.taller = ($el1, $el2) ->
-    height1 = $el1.outerHeight()
-    height2 = $el2.outerHeight()
-    if height1 > height2
-      return $el1
-    else
-      return $el2
+  # treat zero length jquery object to null
+  ns.normalizeEventData = (obj) ->
+    $.each obj, (key, val) ->
+      if val?.length? and val.length is 0
+        obj[key] = null
+    return obj
 
   # ============================================================
   # Tab
@@ -46,6 +45,9 @@ do ($ = jQuery, window = window, document = document) ->
       useFade: false
       useTransition: false
       fadeDuration: 400
+      
+      # others
+      allow_noactive: false # make this true to allow disabling all
     
     constructor: (@$el, options = {}) ->
 
@@ -66,46 +68,75 @@ do ($ = jQuery, window = window, document = document) ->
         return @$lastContentEl = @$el.find ".#{@options.content_activeClass}"
       $nextContentEl = @getRelatedContentEl $opener
 
-      return this if $lastContentEl[0] is $nextContentEl[0]
+      justHide = false
+
+      if $lastContentEl[0] is $nextContentEl[0]
+        if @options.allow_noactive
+          justHide = true
+        else
+          return this
+
+      disableFadeOutDefer = if justHide then $.Deferred() else null
 
       # if there's already fadeIn progress, fail it.
       @_lastFadeDefer?.reject()
       # then force it to hide
-      @disableContentEl $lastContentEl
+      if justHide
+        @disableContentEl $lastContentEl, true, ->
+          disableFadeOutDefer.resolve()
+      else
+        @disableContentEl $lastContentEl, false, null
 
       if @options.useFade
 
         # we need to make elements to absolute for fading
         @makeContentElsToAbsolute()
 
-        # change wrapper's height to taller content
-        $taller = ns.taller $lastContentEl, $nextContentEl
-        @fixWrapperTo $taller
+        if justHide
+          # change wrapper's height to hiding content
+          @fixWrapperTo $lastContentEl
+          disableFadeOutDefer.done =>
+            @hideWrapper()
+        else
+          # change wrapper's height to next content
+          @showWrapper()
+          @fixWrapperTo $nextContentEl
 
-      eventData =
-        lastTabEl: @getLastTab()
-        clickedTabEl: $opener
-        lastContentEl: $lastContentEl
-        contentEl: $nextContentEl
+      eventData = {}
+
+      if justHide
+        eventData.lastTabEl = $opener
+        eventData.tabEl = null
+        eventData.lastContentEl = $lastContentEl
+        eventData.contentEl = null
+      else
+        eventData.lastTabEl = @getLastTab()
+        eventData.tabEl = $opener
+        eventData.lastContentEl = $lastContentEl
+        eventData.contentEl = $nextContentEl
+
+      eventData = ns.normalizeEventData eventData
 
       @$el.trigger 'tabify.switch', eventData
-      @$el.trigger 'tabify.beforeswitchanimation', eventData
+      @$el.trigger 'tabify.beforeswitchanimation', eventData unless justHide
 
       # save next as last
-      @$lastContentEl = $nextContentEl
+      if justHide
+        @$lastContentEl = null
+      else
+        @$lastContentEl = $nextContentEl
 
-      # save defer to fail this when another fade starts
-      @_lastFadeDefer = (@activateContentEl $nextContentEl)
+      unless justHide
 
-      @_lastFadeDefer.done =>
-        # change wrapper's height again
-        if @options.useFade and ($taller[0] isnt $nextContentEl[0])
-          @fixWrapperTo $nextContentEl
-        @$el.trigger 'tabify.afterswitchanimation', eventData
+        # save defer to fail this when another fade starts
+        @_lastFadeDefer = (@activateContentEl $nextContentEl)
+
+        @_lastFadeDefer.done =>
+          @$el.trigger 'tabify.afterswitchanimation', eventData
 
       # swtich tab
       @disableActiveTab()
-      @activateTab $opener
+      @activateTab $opener unless justHide
 
       return this
 
@@ -118,6 +149,19 @@ do ($ = jQuery, window = window, document = document) ->
 
     fixWrapperTo: ($contentEl) ->
       @getWrapperEl().height $contentEl.outerHeight()
+      return this
+
+    hideWrapper: ->
+      @getWrapperEl().hide()
+      return this
+
+    showWrapper: ->
+      @getWrapperEl().show()
+      return this
+
+    adjustWrapperHeight: ->
+      return this unless @$lastContentEl
+      @fixWrapperTo @$lastContentEl
       return this
 
     # content element handlers
@@ -151,19 +195,27 @@ do ($ = jQuery, window = window, document = document) ->
 
       return defer
 
-    disableContentEl: ($contentEl) ->
+    disableContentEl: ($contentEl, animate, callback) ->
 
-      handleCls = =>
+      done = =>
         $contentEl.removeClass @options.content_activeClass
+        callback?()
 
       if @options.useFade
-        if @_transitionEnabled
-          $contentEl.stop().css('opacity', 0).hide()
+        if animate
+          d = @options.fadeDuration
+          if @_transitionEnabled
+            $contentEl.stop().transition { opacity: 0 }, d, done
+          else
+            $contentEl.fadeTo d, 0, done
         else
-          $contentEl.stop().fadeTo(0, 0).hide()
-        handleCls()
+          if @_transitionEnabled
+            $contentEl.stop().css('opacity', 0).hide()
+          else
+            $contentEl.stop().fadeTo(0, 0).hide()
+          done()
       else
-        handleCls()
+        done()
 
       return this
 
