@@ -83,6 +83,7 @@ do ($ = jQuery, window = window, document = document) ->
         @fixWrapperTo $taller
 
       eventData =
+        lastTabEl: @getLastTab()
         clickedTabEl: $opener
         lastContentEl: $lastContentEl
         contentEl: $nextContentEl
