@@ -1,5 +1,9 @@
 # Change log
 
+## v1.2.1
+
+* fixed event trigger timings
+
 ## v1.2.0
 
 * implemented `adjustWrapperHeight` method.
