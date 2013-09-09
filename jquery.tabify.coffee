@@ -117,14 +117,14 @@ do ($ = jQuery, window = window, document = document) ->
 
       eventData = ns.normalizeEventData eventData
 
-      @$el.trigger 'tabify.switch', eventData
-      @$el.trigger 'tabify.beforeswitchanimation', eventData unless justHide
-
       # save next as last
       if justHide
         @$lastContentEl = null
       else
         @$lastContentEl = $nextContentEl
+
+      @$el.trigger 'tabify.switch', eventData
+      @$el.trigger 'tabify.beforeswitchanimation', eventData unless justHide
 
       unless justHide
 

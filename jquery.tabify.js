@@ -1,5 +1,5 @@
 /*! jQuery.tabify (https://github.com/Takazudo/jQuery.tabify)
- * lastupdate: 2013-05-13
+ * lastupdate: 2013-09-09
  * version: 1.2.0
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
@@ -113,14 +113,14 @@
           eventData.contentEl = $nextContentEl;
         }
         eventData = ns.normalizeEventData(eventData);
-        this.$el.trigger('tabify.switch', eventData);
-        if (!justHide) {
-          this.$el.trigger('tabify.beforeswitchanimation', eventData);
-        }
         if (justHide) {
           this.$lastContentEl = null;
         } else {
           this.$lastContentEl = $nextContentEl;
+        }
+        this.$el.trigger('tabify.switch', eventData);
+        if (!justHide) {
+          this.$el.trigger('tabify.beforeswitchanimation', eventData);
         }
         if (!justHide) {
           this._lastFadeDefer = this.activateContentEl($nextContentEl);
