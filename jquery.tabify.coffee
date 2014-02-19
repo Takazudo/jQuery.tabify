@@ -89,7 +89,7 @@ do ($ = jQuery, window = window, document = document) ->
       
       if @options.useHashchange
         ns.Router.create()
-        @switchByHash ns.router.getCurrentHash()
+        @switchByHash ns.router.getCurrentHash(), true
 
       @_eventify()
 
@@ -109,7 +109,7 @@ do ($ = jQuery, window = window, document = document) ->
       return this unless EveEve
       @trigger eventName, data
 
-    switchFromOpener: ($opener) ->
+    switchFromOpener: ($opener, noAnimation = false) ->
 
       $lastContentEl = @$lastContentEl or do =>
         return @$lastContentEl = @$el.find ".#{@options.content_activeClass}"
@@ -134,7 +134,7 @@ do ($ = jQuery, window = window, document = document) ->
       else
         @disableContentEl $lastContentEl, false, null
 
-      if @options.useFade
+      if @options.useFade and (not noAnimation)
 
         # we need to make elements to absolute for fading
         @makeContentElsToAbsolute()
@@ -176,7 +176,7 @@ do ($ = jQuery, window = window, document = document) ->
       unless justHide
 
         # save defer to fail this when another fade starts
-        @_lastFadeDefer = (@activateContentEl $nextContentEl)
+        @_lastFadeDefer = (@activateContentEl $nextContentEl, noAnimation)
 
         @_lastFadeDefer.done =>
           @_trigger 'tabify.afterswitchanimation', eventData
@@ -221,7 +221,7 @@ do ($ = jQuery, window = window, document = document) ->
         top:0
       return this
 
-    activateContentEl: ($contentEl) ->
+    activateContentEl: ($contentEl, noAnimation) ->
 
       defer = $.Deferred (defer) =>
 
@@ -231,7 +231,7 @@ do ($ = jQuery, window = window, document = document) ->
           $contentEl.addClass cls
           defer.resolve()
 
-        if @options.useFade
+        if @options.useFade and (not noAnimation)
           d = @options.fadeDuration
           if @_transitionEnabled
             $contentEl.show().css('opacity', 0).transition { opacity: 1 }, d, callback
@@ -324,23 +324,23 @@ do ($ = jQuery, window = window, document = document) ->
 
     # control methods
     
-    switchByHash: (hash) ->
+    switchByHash: (hash, noAnimation = false) ->
       if hash is ''
         hash = @_firstTabHrefVal
-      @switchById hash
+      @switchById hash, noAnimation
     
-    switchById: (id) ->
+    switchById: (id, noAnimation = false) ->
       $opener = (@$el.find @options.selector_tab).filter (i, el) ->
         return ($(el).attr 'href') is "##{id}"
       if $opener.length
-        @switchFromOpener $opener
+        @switchFromOpener $opener, noAnimation
       return this
 
-    switchByTabId: (id) ->
+    switchByTabId: (id, noAnimation = false) ->
       $opener = (@$el.find @options.selector_tab).filter (i, el) =>
         return ($(el).attr @options.attr_target) is id
       if $opener.length
-        @switchFromOpener $opener
+        @switchFromOpener $opener, noAnimation
       return this
 
 

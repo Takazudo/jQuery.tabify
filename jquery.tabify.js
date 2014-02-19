@@ -100,7 +100,7 @@
         this._firstTabHrefVal = this.getFirstTabHrefVal();
         if (this.options.useHashchange) {
           ns.Router.create();
-          this.switchByHash(ns.router.getCurrentHash());
+          this.switchByHash(ns.router.getCurrentHash(), true);
         }
         this._eventify();
       }
@@ -128,9 +128,12 @@
         return this.trigger(eventName, data);
       };
 
-      Tab.prototype.switchFromOpener = function($opener) {
+      Tab.prototype.switchFromOpener = function($opener, noAnimation) {
         var $lastContentEl, $nextContentEl, disableFadeOutDefer, eventData, justHide, _ref,
           _this = this;
+        if (noAnimation == null) {
+          noAnimation = false;
+        }
         $lastContentEl = this.$lastContentEl || (function() {
           return _this.$lastContentEl = _this.$el.find("." + _this.options.content_activeClass);
         })();
@@ -154,7 +157,7 @@
         } else {
           this.disableContentEl($lastContentEl, false, null);
         }
-        if (this.options.useFade) {
+        if (this.options.useFade && (!noAnimation)) {
           this.makeContentElsToAbsolute();
           if (justHide) {
             this.fixWrapperTo($lastContentEl);
@@ -189,7 +192,7 @@
           this._trigger('tabify.beforeswitchanimation', eventData);
         }
         if (!justHide) {
-          this._lastFadeDefer = this.activateContentEl($nextContentEl);
+          this._lastFadeDefer = this.activateContentEl($nextContentEl, noAnimation);
           this._lastFadeDefer.done(function() {
             return _this._trigger('tabify.afterswitchanimation', eventData);
           });
@@ -243,7 +246,7 @@
         return this;
       };
 
-      Tab.prototype.activateContentEl = function($contentEl) {
+      Tab.prototype.activateContentEl = function($contentEl, noAnimation) {
         var defer,
           _this = this;
         defer = $.Deferred(function(defer) {
@@ -253,7 +256,7 @@
             $contentEl.addClass(cls);
             return defer.resolve();
           };
-          if (_this.options.useFade) {
+          if (_this.options.useFade && (!noAnimation)) {
             d = _this.options.fadeDuration;
             if (_this._transitionEnabled) {
               return $contentEl.show().css('opacity', 0).transition({
@@ -368,32 +371,41 @@
         return $filtered;
       };
 
-      Tab.prototype.switchByHash = function(hash) {
+      Tab.prototype.switchByHash = function(hash, noAnimation) {
+        if (noAnimation == null) {
+          noAnimation = false;
+        }
         if (hash === '') {
           hash = this._firstTabHrefVal;
         }
-        return this.switchById(hash);
+        return this.switchById(hash, noAnimation);
       };
 
-      Tab.prototype.switchById = function(id) {
+      Tab.prototype.switchById = function(id, noAnimation) {
         var $opener;
+        if (noAnimation == null) {
+          noAnimation = false;
+        }
         $opener = (this.$el.find(this.options.selector_tab)).filter(function(i, el) {
           return ($(el).attr('href')) === ("#" + id);
         });
         if ($opener.length) {
-          this.switchFromOpener($opener);
+          this.switchFromOpener($opener, noAnimation);
         }
         return this;
       };
 
-      Tab.prototype.switchByTabId = function(id) {
+      Tab.prototype.switchByTabId = function(id, noAnimation) {
         var $opener,
           _this = this;
+        if (noAnimation == null) {
+          noAnimation = false;
+        }
         $opener = (this.$el.find(this.options.selector_tab)).filter(function(i, el) {
           return ($(el).attr(_this.options.attr_target)) === id;
         });
         if ($opener.length) {
-          this.switchFromOpener($opener);
+          this.switchFromOpener($opener, noAnimation);
         }
         return this;
       };
