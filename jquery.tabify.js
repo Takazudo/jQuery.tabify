@@ -1,6 +1,6 @@
 /*! jQuery.tabify (https://github.com/Takazudo/jQuery.tabify)
  * lastupdate: 2014-02-19
- * version: 1.2.1
+ * version: 1.3.0
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
