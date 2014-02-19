@@ -55,6 +55,8 @@ do ($ = jQuery, window = window, document = document) ->
 
   class ns.Tab
 
+    if EveEve then $.extend this::, EveEve::
+
     @defaults =
 
       # selectores related to the container
@@ -101,6 +103,11 @@ do ($ = jQuery, window = window, document = document) ->
           e.preventDefault()
           @switchFromOpener $(e.currentTarget)
       return this
+
+    _trigger: (eventName, data) ->
+      @$el.trigger eventName, data
+      return this unless EveEve
+      @trigger eventName, data
 
     switchFromOpener: ($opener) ->
 
@@ -163,8 +170,8 @@ do ($ = jQuery, window = window, document = document) ->
       else
         @$lastContentEl = $nextContentEl
 
-      @$el.trigger 'tabify.switch', eventData
-      @$el.trigger 'tabify.beforeswitchanimation', eventData unless justHide
+      @_trigger 'tabify.switch', eventData
+      @_trigger 'tabify.beforeswitchanimation', eventData unless justHide
 
       unless justHide
 
@@ -172,7 +179,7 @@ do ($ = jQuery, window = window, document = document) ->
         @_lastFadeDefer = (@activateContentEl $nextContentEl)
 
         @_lastFadeDefer.done =>
-          @$el.trigger 'tabify.afterswitchanimation', eventData
+          @_trigger 'tabify.afterswitchanimation', eventData
 
       # swtich tab
       @disableActiveTab()

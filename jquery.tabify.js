@@ -71,6 +71,10 @@
     }
     ns.Tab = (function() {
 
+      if (EveEve) {
+        $.extend(Tab.prototype, EveEve.prototype);
+      }
+
       Tab.defaults = {
         selector_tab: '.tab',
         selector_contentwrapper: '.tabcontentwrapper',
@@ -114,6 +118,14 @@
           });
         }
         return this;
+      };
+
+      Tab.prototype._trigger = function(eventName, data) {
+        this.$el.trigger(eventName, data);
+        if (!EveEve) {
+          return this;
+        }
+        return this.trigger(eventName, data);
       };
 
       Tab.prototype.switchFromOpener = function($opener) {
@@ -172,14 +184,14 @@
         } else {
           this.$lastContentEl = $nextContentEl;
         }
-        this.$el.trigger('tabify.switch', eventData);
+        this._trigger('tabify.switch', eventData);
         if (!justHide) {
-          this.$el.trigger('tabify.beforeswitchanimation', eventData);
+          this._trigger('tabify.beforeswitchanimation', eventData);
         }
         if (!justHide) {
           this._lastFadeDefer = this.activateContentEl($nextContentEl);
           this._lastFadeDefer.done(function() {
-            return _this.$el.trigger('tabify.afterswitchanimation', eventData);
+            return _this._trigger('tabify.afterswitchanimation', eventData);
           });
         }
         this.disableActiveTab();
