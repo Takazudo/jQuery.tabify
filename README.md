@@ -10,6 +10,7 @@ tab. with fade. and with transition. also supports hashchange event.
 * [methods](http://takazudo.github.io/jQuery.tabify/demos/4/)
 * [option - allow\_noactive](http://takazudo.github.io/jQuery.tabify/demos/5/)
 * [adjustWrapperHeight demo](http://takazudo.github.io/jQuery.tabify/demos/6/)
+* [hashchange demo](http://takazudo.github.io/jQuery.tabify/demos/7/)
 
 ## Usage
 
