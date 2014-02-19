@@ -1,12 +1,14 @@
 /*! jQuery.tabify (https://github.com/Takazudo/jQuery.tabify)
- * lastupdate: 2013-09-09
+ * lastupdate: 2014-02-19
  * version: 1.2.1
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   (function($, window, document) {
-    var ns;
+    var $window, ns;
+    $window = $(window);
     ns = {};
     ns.support = {};
     ns.support.transition = (function() {
@@ -24,6 +26,34 @@
       });
       return obj;
     };
+    ns.Router = (function() {
+
+      function Router() {
+        this.onHashchange = __bind(this.onHashchange, this);        this._eventify();
+      }
+
+      Router.prototype._eventify = function() {
+        $window.on('hashchange', this.onHashchange);
+        return this;
+      };
+
+      Router.prototype.onHashchange = function() {
+        var hash;
+        hash = location.hash;
+        switch (hash) {
+          case '#':
+          case '':
+            console.log('ah!');
+            break;
+          default:
+            console.log('foo!');
+        }
+        return this;
+      };
+
+      return Router;
+
+    })();
     ns.Tab = (function() {
 
       Tab.defaults = {
@@ -34,10 +64,10 @@
         content_activeClass: null,
         attr_target: 'data-tabify-target',
         attr_id: 'data-tabify-id',
-        changeHash: false,
         useFade: false,
         useTransition: false,
         fadeDuration: 400,
+        useHashchange: false,
         allow_noactive: false
       };
 
@@ -48,17 +78,22 @@
         }
         this.options = $.extend({}, ns.Tab.defaults, options);
         this._transitionEnabled = ns.support.transition && this.options.useTransition;
+        if (this.options.useHashchange) {
+          this._router = new ns.Router;
+        }
         this._eventify();
       }
 
       Tab.prototype._eventify = function() {
         var _this = this;
-        this.$el.delegate(this.options.selector_tab, 'click', function(e) {
-          if (_this.options.changeHash !== true) {
+        if (this.options.useHashchange) {
+          console.log('hoge');
+        } else {
+          this.$el.delegate(this.options.selector_tab, 'click', function(e) {
             e.preventDefault();
-          }
-          return _this.switchFromOpener($(e.currentTarget));
-        });
+            return _this.switchFromOpener($(e.currentTarget));
+          });
+        }
         return this;
       };
 
@@ -283,9 +318,6 @@
 
       Tab.prototype.switchById = function(id) {
         var $opener;
-        if (this.options.changeHash) {
-          location.href = "#" + id;
-        }
         $opener = (this.$el.find(this.options.selector_tab)).filter(function(i, el) {
           return ($(el).attr('href')) === ("#" + id);
         });

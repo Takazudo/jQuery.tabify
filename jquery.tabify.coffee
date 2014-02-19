@@ -1,5 +1,7 @@
 do ($ = jQuery, window = window, document = document) ->
 
+  $window = $(window)
+
   ns = {}
   ns.support = {}
 
@@ -21,6 +23,27 @@ do ($ = jQuery, window = window, document = document) ->
   # ============================================================
   # Tab
 
+  class ns.Router
+    
+    constructor: ->
+      @_eventify()
+
+    _eventify: ->
+      $window.on 'hashchange', @onHashchange
+      return this
+
+    onHashchange: =>
+      hash = location.hash
+      switch hash
+        when '#', ''
+          console.log 'ah!'
+        else
+          console.log 'foo!'
+      return this
+
+  # ============================================================
+  # Tab
+
   class ns.Tab
 
     @defaults =
@@ -38,28 +61,33 @@ do ($ = jQuery, window = window, document = document) ->
       attr_target: 'data-tabify-target'
       attr_id: 'data-tabify-id'
 
-      # update location or not
-      changeHash: false
-
       # effect
       useFade: false
       useTransition: false
       fadeDuration: 400
       
       # others
+      useHashchange: false
       allow_noactive: false # make this true to allow disabling all
     
     constructor: (@$el, options = {}) ->
 
       @options = $.extend {}, ns.Tab.defaults, options
       @_transitionEnabled = ns.support.transition and @options.useTransition
+      
+      if @options.useHashchange
+        @_router = new ns.Router
+
       @_eventify()
 
     _eventify: ->
 
-      @$el.delegate @options.selector_tab, 'click', (e) =>
-        e.preventDefault() unless @options.changeHash is true
-        @switchFromOpener $(e.currentTarget)
+      if @options.useHashchange
+        console.log 'hoge'
+      else
+        @$el.delegate @options.selector_tab, 'click', (e) =>
+          e.preventDefault()
+          @switchFromOpener $(e.currentTarget)
       return this
 
     switchFromOpener: ($opener) ->
@@ -266,8 +294,6 @@ do ($ = jQuery, window = window, document = document) ->
     # control methods
     
     switchById: (id) ->
-      if @options.changeHash
-        location.href = "##{id}"
       $opener = (@$el.find @options.selector_tab).filter (i, el) ->
         return ($(el).attr 'href') is "##{id}"
       if $opener.length
