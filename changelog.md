@@ -1,5 +1,9 @@
 # Change log
 
+## v1.3.0
+
+* implemented `useHashchange` option
+
 ## v1.2.1
 
 * fixed event trigger timings

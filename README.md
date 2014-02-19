@@ -1,6 +1,6 @@
 # jQuery.tabify
 
-tab. with fade. and with transition.
+tab. with fade. and with transition. also supports hashchange event.
 
 ## Demos
 
@@ -10,8 +10,6 @@ tab. with fade. and with transition.
 * [methods](http://takazudo.github.io/jQuery.tabify/demos/4/)
 * [option - allow\_noactive](http://takazudo.github.io/jQuery.tabify/demos/5/)
 * [adjustWrapperHeight demo](http://takazudo.github.io/jQuery.tabify/demos/6/)
-
-
 
 ## Usage
 
@@ -84,9 +82,29 @@ $tabset.bind('tabify.afterswitchanimation', function(e, data) {
 });
 ```
 
+or if you loaded [EveEve](https://github.com/Takazudo/EveEve) before tabify, you can do
+
+```
+var tab = $tabset.data('tabify');
+
+tab.on('tabify.switch', function(data) {
+  console.log('switch fired.', data);
+});
+tab.on('tabify.beforeswitchanimation', function(data) {
+  console.log('beforeswitchanimation fired.', data);
+});
+tab.on('tabify.afterswitchanimation', function(data) {
+  console.log('afterswitchanimation fired.', data);
+});
+
+```
+
 ## Depends
 
-jQuery 1.9.1
+* jQuery 1.9.1
+* [EveEve](https://github.com/Takazudo/EveEve) - if you want to use hashchange or instance event feature.
+* [jquery.transit](http://ricostacruz.com/jquery.transit/) - if you want to use transition.
+* [jQuery hashchange event](http://benalman.com/projects/jquery-hashchange-plugin/) - if you want to support old browsers that lacks hashchange event support.
 
 ## Browsers
 
