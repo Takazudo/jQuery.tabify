@@ -1,6 +1,7 @@
 do ($ = jQuery, window = window, document = document) ->
 
   $window = $(window)
+  EveEve = window.EveEve
 
   ns = {}
   ns.support = {}
@@ -21,9 +22,15 @@ do ($ = jQuery, window = window, document = document) ->
     return obj
 
   # ============================================================
-  # Tab
+  # Router
+  # skip this if EveEve was not loaded.
 
-  class ns.Router
+  if EveEve then class ns.Router extends EveEve
+
+    @create = ->
+      unless ns.router
+        ns.router = new ns.Router
+      return ns.router
     
     constructor: ->
       @_eventify()
@@ -33,13 +40,15 @@ do ($ = jQuery, window = window, document = document) ->
       return this
 
     onHashchange: =>
-      hash = location.hash
-      switch hash
-        when '#', ''
-          console.log 'ah!'
-        else
-          console.log 'foo!'
+      @trigger 'hashchange', @getCurrentHash()
       return this
+
+    getCurrentHash: ->
+      hash = location.hash
+      if hash is ''
+        hash = '#'
+      hash = hash.replace /^#/, ''
+      return hash
 
   # ============================================================
   # Tab
@@ -74,16 +83,20 @@ do ($ = jQuery, window = window, document = document) ->
 
       @options = $.extend {}, ns.Tab.defaults, options
       @_transitionEnabled = ns.support.transition and @options.useTransition
+      @_firstTabHrefVal = @getFirstTabHrefVal()
       
       if @options.useHashchange
-        @_router = new ns.Router
+        ns.Router.create()
 
       @_eventify()
 
     _eventify: ->
 
       if @options.useHashchange
-        console.log 'hoge'
+        ns.router.on 'hashchange', (hash) =>
+          if hash is ''
+            hash = @_firstTabHrefVal
+          @switchById hash
       else
         @$el.delegate @options.selector_tab, 'click', (e) =>
           e.preventDefault()
@@ -248,6 +261,17 @@ do ($ = jQuery, window = window, document = document) ->
       return this
 
     # tab element handlers
+
+    getFirstTabHrefVal: ->
+      $tab = (@$el.find @options.selector_tab).eq(0)
+      val = $tab.attr 'href'
+      unless val?
+        val = $tab.attr @options.attr_target
+      if val?
+        val = val.replace /^#/, ''
+        return val
+      throw new Error 'getFirstTabHrefVal had some troubles'
+      return null
     
     getLastTab: ->
 
@@ -275,21 +299,22 @@ do ($ = jQuery, window = window, document = document) ->
     getRelatedContentEl: ($tab) ->
 
       $contentEls = @$el.find @options.selector_content
-      targetData = $tab.attr @options.attr_target
+      hrefVal = $tab.attr 'href'
+      if hrefVal?
+        hrefVal = hrefVal.replace /^#/, ''
+      targetDataVal = $tab.attr @options.attr_target
 
-      # if data attr was requested, find el from data attr
-      if targetData
-        $filtered = $contentEls.filter (i, el) =>
-          if ($(el).attr @options.attr_id) is targetData
-            return true
-          else
-            return false
-        if $filtered.length is 1
-          return $filtered
-
-      # else, use href as id selector
-      href = $tab.attr 'href'
-      return @$el.find href
+      $filtered = $contentEls.filter (i, el) =>
+        $el = $(el)
+        val = $el.attr @options.attr_id
+        unless val?
+          val = $el.attr 'id'
+        if val? and ((val is hrefVal) or (val is targetDataVal))
+          return true
+        return false
+      unless $filtered.length is 1
+        throw new Error 'getRelatedContentEl had some troubles.'
+      return $filtered
 
     # control methods
     

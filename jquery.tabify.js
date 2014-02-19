@@ -4,11 +4,14 @@
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
 (function() {
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   (function($, window, document) {
-    var $window, ns;
+    var $window, EveEve, ns;
     $window = $(window);
+    EveEve = window.EveEve;
     ns = {};
     ns.support = {};
     ns.support.transition = (function() {
@@ -26,34 +29,46 @@
       });
       return obj;
     };
-    ns.Router = (function() {
+    if (EveEve) {
+      ns.Router = (function(_super) {
 
-      function Router() {
-        this.onHashchange = __bind(this.onHashchange, this);        this._eventify();
-      }
+        __extends(Router, _super);
 
-      Router.prototype._eventify = function() {
-        $window.on('hashchange', this.onHashchange);
-        return this;
-      };
+        Router.create = function() {
+          if (!ns.router) {
+            ns.router = new ns.Router;
+          }
+          return ns.router;
+        };
 
-      Router.prototype.onHashchange = function() {
-        var hash;
-        hash = location.hash;
-        switch (hash) {
-          case '#':
-          case '':
-            console.log('ah!');
-            break;
-          default:
-            console.log('foo!');
+        function Router() {
+          this.onHashchange = __bind(this.onHashchange, this);          this._eventify();
         }
-        return this;
-      };
 
-      return Router;
+        Router.prototype._eventify = function() {
+          $window.on('hashchange', this.onHashchange);
+          return this;
+        };
 
-    })();
+        Router.prototype.onHashchange = function() {
+          this.trigger('hashchange', this.getCurrentHash());
+          return this;
+        };
+
+        Router.prototype.getCurrentHash = function() {
+          var hash;
+          hash = location.hash;
+          if (hash === '') {
+            hash = '#';
+          }
+          hash = hash.replace(/^#/, '');
+          return hash;
+        };
+
+        return Router;
+
+      })(EveEve);
+    }
     ns.Tab = (function() {
 
       Tab.defaults = {
@@ -78,8 +93,9 @@
         }
         this.options = $.extend({}, ns.Tab.defaults, options);
         this._transitionEnabled = ns.support.transition && this.options.useTransition;
+        this._firstTabHrefVal = this.getFirstTabHrefVal();
         if (this.options.useHashchange) {
-          this._router = new ns.Router;
+          ns.Router.create();
         }
         this._eventify();
       }
@@ -87,7 +103,12 @@
       Tab.prototype._eventify = function() {
         var _this = this;
         if (this.options.useHashchange) {
-          console.log('hoge');
+          ns.router.on('hashchange', function(hash) {
+            if (hash === '') {
+              hash = _this._firstTabHrefVal;
+            }
+            return _this.switchById(hash);
+          });
         } else {
           this.$el.delegate(this.options.selector_tab, 'click', function(e) {
             e.preventDefault();
@@ -269,6 +290,21 @@
         return this;
       };
 
+      Tab.prototype.getFirstTabHrefVal = function() {
+        var $tab, val;
+        $tab = (this.$el.find(this.options.selector_tab)).eq(0);
+        val = $tab.attr('href');
+        if (val == null) {
+          val = $tab.attr(this.options.attr_target);
+        }
+        if (val != null) {
+          val = val.replace(/^#/, '');
+          return val;
+        }
+        throw new Error('getFirstTabHrefVal had some troubles');
+        return null;
+      };
+
       Tab.prototype.getLastTab = function() {
         var _this = this;
         return this.$lastTab || (function() {
@@ -296,24 +332,30 @@
       };
 
       Tab.prototype.getRelatedContentEl = function($tab) {
-        var $contentEls, $filtered, href, targetData,
+        var $contentEls, $filtered, hrefVal, targetDataVal,
           _this = this;
         $contentEls = this.$el.find(this.options.selector_content);
-        targetData = $tab.attr(this.options.attr_target);
-        if (targetData) {
-          $filtered = $contentEls.filter(function(i, el) {
-            if (($(el).attr(_this.options.attr_id)) === targetData) {
-              return true;
-            } else {
-              return false;
-            }
-          });
-          if ($filtered.length === 1) {
-            return $filtered;
-          }
+        hrefVal = $tab.attr('href');
+        if (hrefVal != null) {
+          hrefVal = hrefVal.replace(/^#/, '');
         }
-        href = $tab.attr('href');
-        return this.$el.find(href);
+        targetDataVal = $tab.attr(this.options.attr_target);
+        $filtered = $contentEls.filter(function(i, el) {
+          var $el, val;
+          $el = $(el);
+          val = $el.attr(_this.options.attr_id);
+          if (val == null) {
+            val = $el.attr('id');
+          }
+          if ((val != null) && ((val === hrefVal) || (val === targetDataVal))) {
+            return true;
+          }
+          return false;
+        });
+        if ($filtered.length !== 1) {
+          throw new Error('getRelatedContentEl had some troubles.');
+        }
+        return $filtered;
       };
 
       Tab.prototype.switchById = function(id) {
