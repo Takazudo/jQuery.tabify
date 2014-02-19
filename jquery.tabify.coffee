@@ -87,6 +87,7 @@ do ($ = jQuery, window = window, document = document) ->
       
       if @options.useHashchange
         ns.Router.create()
+        @switchByHash ns.router.getCurrentHash()
 
       @_eventify()
 
@@ -94,9 +95,7 @@ do ($ = jQuery, window = window, document = document) ->
 
       if @options.useHashchange
         ns.router.on 'hashchange', (hash) =>
-          if hash is ''
-            hash = @_firstTabHrefVal
-          @switchById hash
+          @switchByHash hash
       else
         @$el.delegate @options.selector_tab, 'click', (e) =>
           e.preventDefault()
@@ -317,6 +316,11 @@ do ($ = jQuery, window = window, document = document) ->
       return $filtered
 
     # control methods
+    
+    switchByHash: (hash) ->
+      if hash is ''
+        hash = @_firstTabHrefVal
+      @switchById hash
     
     switchById: (id) ->
       $opener = (@$el.find @options.selector_tab).filter (i, el) ->

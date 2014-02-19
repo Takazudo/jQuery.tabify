@@ -96,6 +96,7 @@
         this._firstTabHrefVal = this.getFirstTabHrefVal();
         if (this.options.useHashchange) {
           ns.Router.create();
+          this.switchByHash(ns.router.getCurrentHash());
         }
         this._eventify();
       }
@@ -104,10 +105,7 @@
         var _this = this;
         if (this.options.useHashchange) {
           ns.router.on('hashchange', function(hash) {
-            if (hash === '') {
-              hash = _this._firstTabHrefVal;
-            }
-            return _this.switchById(hash);
+            return _this.switchByHash(hash);
           });
         } else {
           this.$el.delegate(this.options.selector_tab, 'click', function(e) {
@@ -356,6 +354,13 @@
           throw new Error('getRelatedContentEl had some troubles.');
         }
         return $filtered;
+      };
+
+      Tab.prototype.switchByHash = function(hash) {
+        if (hash === '') {
+          hash = this._firstTabHrefVal;
+        }
+        return this.switchById(hash);
       };
 
       Tab.prototype.switchById = function(id) {
