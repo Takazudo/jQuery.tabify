@@ -234,9 +234,13 @@ do ($ = jQuery, window = window, document = document) ->
         if @options.useFade and (not noAnimation)
           d = @options.fadeDuration
           if @_transitionEnabled
-            $contentEl.show().css('opacity', 0).transition { opacity: 1 }, d, callback
+            $contentEl
+              .show()
+              .css 'opacity', 0
+              .transition { opacity: 1 }, d, callback
           else
-            $contentEl.fadeTo d, 1, callback
+            $contentEl
+              .fadeTo d, 1, callback
         else
           callback()
 
@@ -252,14 +256,22 @@ do ($ = jQuery, window = window, document = document) ->
         if animate
           d = @options.fadeDuration
           if @_transitionEnabled
-            $contentEl.stop().transition { opacity: 0 }, d, done
+            $contentEl
+              .stop()
+              .transition { opacity: 0 }, d, done
           else
             $contentEl.fadeTo d, 0, done
         else
           if @_transitionEnabled
-            $contentEl.stop().css('opacity', 0).hide()
+            $contentEl
+              .stop()
+              .css 'opacity', 0
+              .hide()
           else
-            $contentEl.stop().fadeTo(0, 0).hide()
+            $contentEl
+              .stop()
+              .fadeTo 0, 0
+              .hide()
           done()
       else
         done()
