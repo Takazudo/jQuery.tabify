@@ -31,7 +31,6 @@
     };
     if (EveEve) {
       ns.Router = (function(_super) {
-
         __extends(Router, _super);
 
         Router.create = function() {
@@ -42,7 +41,8 @@
         };
 
         function Router() {
-          this.onHashchange = __bind(this.onHashchange, this);          this._eventify();
+          this.onHashchange = __bind(this.onHashchange, this);
+          this._eventify();
         }
 
         Router.prototype._eventify = function() {
@@ -70,7 +70,6 @@
       })(EveEve);
     }
     ns.Tab = (function() {
-
       if (EveEve) {
         $.extend(Tab.prototype, EveEve.prototype);
       }
@@ -106,16 +105,19 @@
       }
 
       Tab.prototype._eventify = function() {
-        var _this = this;
         if (this.options.useHashchange) {
-          ns.router.on('hashchange', function(hash) {
-            return _this.switchByHash(hash);
-          });
+          ns.router.on('hashchange', (function(_this) {
+            return function(hash) {
+              return _this.switchByHash(hash);
+            };
+          })(this));
         } else {
-          this.$el.delegate(this.options.selector_tab, 'click', function(e) {
-            e.preventDefault();
-            return _this.switchFromOpener($(e.currentTarget));
-          });
+          this.$el.delegate(this.options.selector_tab, 'click', (function(_this) {
+            return function(e) {
+              e.preventDefault();
+              return _this.switchFromOpener($(e.currentTarget));
+            };
+          })(this));
         }
         return this;
       };
@@ -129,14 +131,15 @@
       };
 
       Tab.prototype.switchFromOpener = function($opener, noAnimation) {
-        var $lastContentEl, $nextContentEl, disableFadeOutDefer, eventData, justHide, _ref,
-          _this = this;
+        var $lastContentEl, $nextContentEl, disableFadeOutDefer, eventData, justHide, _ref;
         if (noAnimation == null) {
           noAnimation = false;
         }
-        $lastContentEl = this.$lastContentEl || (function() {
-          return _this.$lastContentEl = _this.$el.find("." + _this.options.content_activeClass);
-        })();
+        $lastContentEl = this.$lastContentEl || (function(_this) {
+          return function() {
+            return _this.$lastContentEl = _this.$el.find("." + _this.options.content_activeClass);
+          };
+        })(this)();
         $nextContentEl = this.getRelatedContentEl($opener);
         justHide = false;
         if ($lastContentEl[0] === $nextContentEl[0]) {
@@ -161,9 +164,11 @@
           this.makeContentElsToAbsolute();
           if (justHide) {
             this.fixWrapperTo($lastContentEl);
-            disableFadeOutDefer.done(function() {
-              return _this.hideWrapper();
-            });
+            disableFadeOutDefer.done((function(_this) {
+              return function() {
+                return _this.hideWrapper();
+              };
+            })(this));
           } else {
             this.showWrapper();
             this.fixWrapperTo($nextContentEl);
@@ -193,9 +198,11 @@
         }
         if (!justHide) {
           this._lastFadeDefer = this.activateContentEl($nextContentEl, noAnimation);
-          this._lastFadeDefer.done(function() {
-            return _this._trigger('tabify.afterswitchanimation', eventData);
-          });
+          this._lastFadeDefer.done((function(_this) {
+            return function() {
+              return _this._trigger('tabify.afterswitchanimation', eventData);
+            };
+          })(this));
         }
         this.disableActiveTab();
         if (!justHide) {
@@ -205,11 +212,12 @@
       };
 
       Tab.prototype.getWrapperEl = function() {
-        var _this = this;
-        return this.$wrapper || (function() {
-          _this.$wrapper = _this.$el.find(_this.options.selector_contentwrapper);
-          return _this.$wrapper;
-        })();
+        return this.$wrapper || (function(_this) {
+          return function() {
+            _this.$wrapper = _this.$el.find(_this.options.selector_contentwrapper);
+            return _this.$wrapper;
+          };
+        })(this)();
       };
 
       Tab.prototype.fixWrapperTo = function($contentEl) {
@@ -247,38 +255,40 @@
       };
 
       Tab.prototype.activateContentEl = function($contentEl, noAnimation) {
-        var defer,
-          _this = this;
-        defer = $.Deferred(function(defer) {
-          var callback, cls, d;
-          cls = _this.options.content_activeClass;
-          callback = function() {
-            $contentEl.addClass(cls);
-            return defer.resolve();
-          };
-          if (_this.options.useFade && (!noAnimation)) {
-            d = _this.options.fadeDuration;
-            if (_this._transitionEnabled) {
-              return $contentEl.show().css('opacity', 0).transition({
-                opacity: 1
-              }, d, callback);
+        var defer;
+        defer = $.Deferred((function(_this) {
+          return function(defer) {
+            var callback, cls, d;
+            cls = _this.options.content_activeClass;
+            callback = function() {
+              $contentEl.addClass(cls);
+              return defer.resolve();
+            };
+            if (_this.options.useFade && (!noAnimation)) {
+              d = _this.options.fadeDuration;
+              if (_this._transitionEnabled) {
+                return $contentEl.show().css('opacity', 0).transition({
+                  opacity: 1
+                }, d, callback);
+              } else {
+                return $contentEl.fadeTo(d, 1, callback);
+              }
             } else {
-              return $contentEl.fadeTo(d, 1, callback);
+              return callback();
             }
-          } else {
-            return callback();
-          }
-        });
+          };
+        })(this));
         return defer;
       };
 
       Tab.prototype.disableContentEl = function($contentEl, animate, callback) {
-        var d, done,
-          _this = this;
-        done = function() {
-          $contentEl.removeClass(_this.options.content_activeClass);
-          return typeof callback === "function" ? callback() : void 0;
-        };
+        var d, done;
+        done = (function(_this) {
+          return function() {
+            $contentEl.removeClass(_this.options.content_activeClass);
+            return typeof callback === "function" ? callback() : void 0;
+          };
+        })(this);
         if (this.options.useFade) {
           if (animate) {
             d = this.options.fadeDuration;
@@ -319,16 +329,17 @@
       };
 
       Tab.prototype.getLastTab = function() {
-        var _this = this;
-        return this.$lastTab || (function() {
-          var $tabs, cls;
-          cls = _this.options.tab_activeClass;
-          $tabs = _this.$el.find(_this.options.selector_tab);
-          _this.$lastTab = $tabs.filter(function(i, el) {
-            return $(el).hasClass(cls);
-          });
-          return _this.$lastTab;
-        })();
+        return this.$lastTab || (function(_this) {
+          return function() {
+            var $tabs, cls;
+            cls = _this.options.tab_activeClass;
+            $tabs = _this.$el.find(_this.options.selector_tab);
+            _this.$lastTab = $tabs.filter(function(i, el) {
+              return $(el).hasClass(cls);
+            });
+            return _this.$lastTab;
+          };
+        })(this)();
       };
 
       Tab.prototype.activateTab = function($opener) {
@@ -345,26 +356,27 @@
       };
 
       Tab.prototype.getRelatedContentEl = function($tab) {
-        var $contentEls, $filtered, hrefVal, targetDataVal,
-          _this = this;
+        var $contentEls, $filtered, hrefVal, targetDataVal;
         $contentEls = this.$el.find(this.options.selector_content);
         hrefVal = $tab.attr('href');
         if (hrefVal != null) {
           hrefVal = hrefVal.replace(/^#/, '');
         }
         targetDataVal = $tab.attr(this.options.attr_target);
-        $filtered = $contentEls.filter(function(i, el) {
-          var $el, val;
-          $el = $(el);
-          val = $el.attr(_this.options.attr_id);
-          if (val == null) {
-            val = $el.attr('id');
-          }
-          if ((val != null) && ((val === hrefVal) || (val === targetDataVal))) {
-            return true;
-          }
-          return false;
-        });
+        $filtered = $contentEls.filter((function(_this) {
+          return function(i, el) {
+            var $el, val;
+            $el = $(el);
+            val = $el.attr(_this.options.attr_id);
+            if (val == null) {
+              val = $el.attr('id');
+            }
+            if ((val != null) && ((val === hrefVal) || (val === targetDataVal))) {
+              return true;
+            }
+            return false;
+          };
+        })(this));
         if ($filtered.length !== 1) {
           throw new Error('getRelatedContentEl had some troubles.');
         }
@@ -396,14 +408,15 @@
       };
 
       Tab.prototype.switchByTabId = function(id, noAnimation) {
-        var $opener,
-          _this = this;
+        var $opener;
         if (noAnimation == null) {
           noAnimation = false;
         }
-        $opener = (this.$el.find(this.options.selector_tab)).filter(function(i, el) {
-          return ($(el).attr(_this.options.attr_target)) === id;
-        });
+        $opener = (this.$el.find(this.options.selector_tab)).filter((function(_this) {
+          return function(i, el) {
+            return ($(el).attr(_this.options.attr_target)) === id;
+          };
+        })(this));
         if ($opener.length) {
           this.switchFromOpener($opener, noAnimation);
         }
