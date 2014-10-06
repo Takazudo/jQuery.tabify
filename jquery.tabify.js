@@ -1,5 +1,5 @@
 /*! jQuery.tabify (https://github.com/Takazudo/jQuery.tabify)
- * lastupdate: 2014-02-19
+ * lastupdate: 2014-10-07
  * version: 1.3.0
  * author: 'Takazudo' Takeshi Takatsudo <takazudo@gmail.com>
  * License: MIT */
@@ -86,7 +86,8 @@
         useTransition: false,
         fadeDuration: 400,
         useHashchange: false,
-        allow_noactive: false
+        allow_noactive: false,
+        useEventDelegation: true
       };
 
       function Tab($el, options) {
@@ -105,6 +106,7 @@
       }
 
       Tab.prototype._eventify = function() {
+        var clickHandler;
         if (this.options.useHashchange) {
           ns.router.on('hashchange', (function(_this) {
             return function(hash) {
@@ -112,12 +114,17 @@
             };
           })(this));
         } else {
-          this.$el.delegate(this.options.selector_tab, 'click', (function(_this) {
+          clickHandler = (function(_this) {
             return function(e) {
               e.preventDefault();
               return _this.switchFromOpener($(e.currentTarget));
             };
-          })(this));
+          })(this);
+          if (this.options.useEventDelegation) {
+            this.$el.delegate(this.options.selector_tab, 'click', clickHandler);
+          } else {
+            (this.$el.find(this.options.selector_tab)).bind('click', clickHandler);
+          }
         }
         return this;
       };

@@ -80,6 +80,7 @@ do ($ = jQuery, window = window, document = document) ->
       # others
       useHashchange: false
       allow_noactive: false # make this true to allow disabling all
+      useEventDelegation: true
     
     constructor: (@$el, options = {}) ->
 
@@ -99,9 +100,13 @@ do ($ = jQuery, window = window, document = document) ->
         ns.router.on 'hashchange', (hash) =>
           @switchByHash hash
       else
-        @$el.delegate @options.selector_tab, 'click', (e) =>
+        clickHandler = (e) =>
           e.preventDefault()
           @switchFromOpener $(e.currentTarget)
+        if @options.useEventDelegation
+          @$el.delegate @options.selector_tab, 'click', clickHandler
+        else
+          (@$el.find @options.selector_tab).bind 'click', clickHandler
       return this
 
     _trigger: (eventName, data) ->
